@@ -31,10 +31,7 @@ public class Kicking : MonoBehaviour
         {
             KickBall();
         }
-        if (Keyboard.current[Key.R].wasPressedThisFrame)
-        {
-            Restart();
-        }
+
     }
     
     public void KickBall()
@@ -58,9 +55,6 @@ public class Kicking : MonoBehaviour
         _ball.AddForce(-direction * kickForce, ForceMode.Impulse);
     }
 
-    private void Restart()
-    {
-        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
-    }
+
     
 }
