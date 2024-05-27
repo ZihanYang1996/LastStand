@@ -60,6 +60,14 @@
       "dependencies": {},
       "url": "https://packages.unity.com"
     },
+    "com.unity.inputsystem": {
+      "version": "file:E:/Github/Unity Project/InputSystem-1.8.1/Packages/com.unity.inputsystem",
+      "depth": 0,
+      "source": "local",
+      "dependencies": {
+        "com.unity.modules.uielements": "1.0.0"
+      }
+    },
     "com.unity.performance.profile-analyzer": {
       "version": "1.2.2",
       "depth": 1,
