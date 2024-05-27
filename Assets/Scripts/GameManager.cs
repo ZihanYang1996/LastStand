@@ -13,7 +13,7 @@ public class GameManager : MonoBehaviour
     [SerializeField]
     private TextMeshProUGUI countdownText;
     [SerializeField]
-    private Kicking kicking;
+    private BallScript ball;
     [SerializeField]
     private float countdown = 5f;
     
@@ -47,6 +47,6 @@ public class GameManager : MonoBehaviour
         }
 
         countdownText.text = "Go!";
-        kicking.KickBall();
+        ball.KickBall();
     }
 }
