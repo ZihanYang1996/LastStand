@@ -7,23 +7,45 @@ using UnityEngine.Serialization;
 
 public class GoalkeeperScript : MonoBehaviour
 {
-    [Header("Target Positions")] 
-    [SerializeField] private Transform leftTarget;
+    [Header("Target Positions")]
+    [Tooltip("The position the goalkeeper dives to when the player presses the left arrow key")]
+    [SerializeField]
+    private Transform leftTarget;
 
-    [SerializeField] private Transform middleTarget;
-    [SerializeField] private Transform rightTarget;
+    [Tooltip("The position the goalkeeper dives to when the player presses the down arrow key")] [SerializeField]
+    private Transform middleTarget;
+
+    [Tooltip("The position the goalkeeper dives to when the player presses the right arrow key")] [SerializeField]
+    private Transform rightTarget;
 
     [Header("Tuning Parameters")]
-    [SerializeField] private float jumpSpeed = 5f; 
-    [FormerlySerializedAs("jumpTime")] [SerializeField] private float jumpDuration = 1f;
-    [SerializeField] private AnimationCurve jumpCurve;
+    [Tooltip("The duration of the dive in seconds")]
+    [SerializeField]
+    private float diveDuration = 1f;
 
-    private bool _isJumping = false;
+    [Tooltip("The curve that defines the dive behavior over time")]
+    [SerializeField] private AnimationCurve diveCurve;
 
-    enum Direction
+    private bool _isDiving = false;
+
+    /// <summary>
+    /// Enum representing the possible directions for the goalkeeper to dive.
+    /// </summary>
+    public enum Direction
     {
+        /// <summary>
+        /// Represents the left direction.
+        /// </summary>
         Left,
+
+        /// <summary>
+        /// Represents the middle direction.
+        /// </summary>
         Middle,
+
+        /// <summary>
+        /// Represents the right direction.
+        /// </summary>
         Right
     }
 
@@ -35,92 +57,98 @@ public class GoalkeeperScript : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        TakeInput();
+    }
+
+
+    /// <summary>
+    /// Handles the input from the user.
+    /// </summary>
+    private void TakeInput()
+    {
+        // Checks if the left arrow key was pressed during this frame
+        // If so, it initiates a dive to the left
         if (Keyboard.current[Key.LeftArrow].wasPressedThisFrame)
         {
-            Jump(Direction.Left);
+            Dive(Direction.Left);
         }
 
+        // Checks if the down arrow key was pressed during this frame
+        // If so, it initiates a dive to the middle
         if (Keyboard.current[Key.DownArrow].wasPressedThisFrame)
         {
-            Jump(Direction.Middle);
+            Dive(Direction.Middle);
         }
 
+        // Checks if the right arrow key was pressed during this frame
+        // If so, it initiates a dive to the right
         if (Keyboard.current[Key.RightArrow].wasPressedThisFrame)
         {
-            Jump(Direction.Right);
+            Dive(Direction.Right);
         }
     }
 
-    // private IEnumerator JumpCoroutine(Vector3 targetPosition)
-    // {
-    //     // Try Animation Curve in the future !!!!!!!!
-    //     // try use time instead of distance, so it's easier to control
-    //     Vector3 currentPosition = transform.position;
-    //     while (Vector3.Distance(currentPosition, targetPosition) > Mathf.Epsilon)
-    //     {
-    //         // Lerp (Linear Interpolation
-    //         Vector3 newPosition = Vector3.Lerp(currentPosition, targetPosition, jumpSpeed * Time.deltaTime);
-    //         transform.position = newPosition;
-    //         currentPosition = newPosition;
-    //         yield return new WaitForEndOfFrame();
-    //     }
-    // }
-
-    // private IEnumerator JumpCoroutine(Vector3 targetPosition)
-    // {
-    //     _isJumping = true;
-    //     // Try Animation Curve in the future !!!!!!!!
-    //     Vector3 velocity = Vector3.zero;
-    //     float elapsedTime = 0f;
-    //
-    //     while (elapsedTime < jumpTime)
-    //     {
-    //         transform.position = Vector3.Lerp(transform.position, targetPosition, elapsedTime / jumpTime);
-    //         elapsedTime += Time.deltaTime;
-    //         yield return null;
-    //     }
-    //
-    //     transform.position = targetPosition;
-    //     _isJumping = false;
-    // }
-
-    private IEnumerator JumpCoroutine(Vector3 targetPosition)
+    /// <summary>
+    /// Coroutine that animates the dive of the goalkeeper towards the target position.
+    /// </summary>
+    /// <param name="targetPosition">The target position to which the goalkeeper should dive.</param>
+    /// <returns>An IEnumerator that can be used to control the coroutine.</returns>
+    private IEnumerator DiveCoroutine(Vector3 targetPosition)
     {
-        _isJumping = true;
+        // Set the diving state to true
+        _isDiving = true;
+
+        // Store the starting position and initialize the elapsed time
         Vector3 startPosition = transform.position;
         float elapsedTime = 0f;
-        
-        while (elapsedTime < jumpDuration)
+
+        // Continue the dive as long as the elapsed time is less than the dive duration
+        while (elapsedTime < diveDuration)
         {
-            float t = elapsedTime / jumpDuration;
-            float curveValue = jumpCurve.Evaluate(t);
-            
+            // Calculate the normalized time and evaluate the dive curve at this time
+            float t = elapsedTime / diveDuration;
+            float curveValue = diveCurve.Evaluate(t);
+
+            // Calculate the new position as a lerp between the start and target positions, using the curve value
             Vector3 newPosition = Vector3.Lerp(startPosition, targetPosition, curveValue);
+            // Update the position of the goalkeeper
             transform.position = newPosition;
-            
+
+            // Increment the elapsed time by the time since the last frame
             elapsedTime += Time.deltaTime;
+            // Yield control back to the Unity engine until the next frame
             yield return null;
         }
-        
+
+        // At the end of the dive, set the position of the goalkeeper to the target position
         transform.position = targetPosition;
-        _isJumping = false;
+        // Set the diving state to false
+        _isDiving = false;
     }
 
-    void Jump(Direction direction)
+    /// <summary>
+    /// Initiates the dive of the goalkeeper in the specified direction.
+    /// </summary>
+    /// <param name="direction">The direction in which the goalkeeper should dive.</param>
+    void Dive(Direction direction)
     {
-        if (_isJumping) return;
+        // If the goalkeeper is already diving, we return to prevent another dive from starting
+        if (_isDiving) return;
 
-        
+        // Depending on the direction, we start a coroutine to animate the dive towards the target position
         switch (direction)
         {
+            // If the direction is left, we start a coroutine to animate the dive towards the left target position
             case Direction.Left:
-                StartCoroutine(JumpCoroutine(leftTarget.position));
+                StartCoroutine(DiveCoroutine(leftTarget.position));
                 break;
+            // If the direction is middle, we start a coroutine to animate the dive towards the middle target position
             case Direction.Middle:
-                StartCoroutine(JumpCoroutine(middleTarget.position));
+                StartCoroutine(DiveCoroutine(middleTarget.position));
                 break;
+            // If the direction is right, we start a coroutine to animate the dive towards the right target position
             case Direction.Right:
-                StartCoroutine(JumpCoroutine(rightTarget.position));
+                StartCoroutine(DiveCoroutine(rightTarget.position));
                 break;
         }
     }

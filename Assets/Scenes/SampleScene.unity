@@ -718,9 +718,8 @@ MonoBehaviour:
   leftTarget: {fileID: 1894609043}
   middleTarget: {fileID: 1090498969}
   rightTarget: {fileID: 1173924481}
-  jumpSpeed: 5
-  jumpDuration: 1
-  jumpCurve:
+  diveDuration: 1
+  diveCurve:
     serializedVersion: 2
     m_Curve:
     - serializedVersion: 3
@@ -733,14 +732,14 @@ MonoBehaviour:
       inWeight: 0
       outWeight: 0
     - serializedVersion: 3
-      time: 0.16180679
-      value: 0.6140591
-      inSlope: 1.4934858
-      outSlope: 1.4934858
+      time: 0.18246257
+      value: 0.53082997
+      inSlope: 1.7460328
+      outSlope: 1.7460328
       tangentMode: 0
       weightedMode: 0
       inWeight: 0.33333334
-      outWeight: 0.103120506
+      outWeight: 0.06813609
     - serializedVersion: 3
       time: 1
       value: 1
