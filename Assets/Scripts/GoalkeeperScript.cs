@@ -36,7 +36,7 @@ public class GoalkeeperScript : MonoBehaviour
         }
         if (Keyboard.current[Key.DownArrow].wasPressedThisFrame)
         {
-            // Jump(Direction.Middle);
+            Jump(Direction.Middle);
         }
         if (Keyboard.current[Key.RightArrow].wasPressedThisFrame)
         {
