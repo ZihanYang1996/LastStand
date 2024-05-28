@@ -3,20 +3,23 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.Serialization;
 
 public class GoalkeeperScript : MonoBehaviour
 {
-    [Header("Target Positions")] [SerializeField]
-    private Transform leftTarget;
+    [Header("Target Positions")] 
+    [SerializeField] private Transform leftTarget;
 
     [SerializeField] private Transform middleTarget;
     [SerializeField] private Transform rightTarget;
 
-    [Header("Tuning Parameters")] [SerializeField]
-    private float jumpSpeed = 5f;
-    private float jumpTime = 1f;
+    [Header("Tuning Parameters")]
+    [SerializeField] private float jumpSpeed = 5f; 
+    [FormerlySerializedAs("jumpTime")] [SerializeField] private float jumpDuration = 1f;
+    [SerializeField] private AnimationCurve jumpCurve;
 
-    private bool isJumping = false;
+    private bool _isJumping = false;
+
     enum Direction
     {
         Left,
@@ -36,10 +39,12 @@ public class GoalkeeperScript : MonoBehaviour
         {
             Jump(Direction.Left);
         }
+
         if (Keyboard.current[Key.DownArrow].wasPressedThisFrame)
         {
             Jump(Direction.Middle);
         }
+
         if (Keyboard.current[Key.RightArrow].wasPressedThisFrame)
         {
             Jump(Direction.Right);
@@ -60,29 +65,52 @@ public class GoalkeeperScript : MonoBehaviour
     //         yield return new WaitForEndOfFrame();
     //     }
     // }
-    
+
+    // private IEnumerator JumpCoroutine(Vector3 targetPosition)
+    // {
+    //     _isJumping = true;
+    //     // Try Animation Curve in the future !!!!!!!!
+    //     Vector3 velocity = Vector3.zero;
+    //     float elapsedTime = 0f;
+    //
+    //     while (elapsedTime < jumpTime)
+    //     {
+    //         transform.position = Vector3.Lerp(transform.position, targetPosition, elapsedTime / jumpTime);
+    //         elapsedTime += Time.deltaTime;
+    //         yield return null;
+    //     }
+    //
+    //     transform.position = targetPosition;
+    //     _isJumping = false;
+    // }
+
     private IEnumerator JumpCoroutine(Vector3 targetPosition)
     {
-        // Try Animation Curve in the future !!!!!!!!
-        Vector3 velocity = Vector3.zero;
+        _isJumping = true;
+        Vector3 startPosition = transform.position;
         float elapsedTime = 0f;
         
-        while (elapsedTime < jumpTime)
+        while (elapsedTime < jumpDuration)
         {
-            transform.position = Vector3.Lerp(transform.position, targetPosition, elapsedTime / jumpTime);
+            float t = elapsedTime / jumpDuration;
+            float curveValue = jumpCurve.Evaluate(t);
+            
+            Vector3 newPosition = Vector3.Lerp(startPosition, targetPosition, curveValue);
+            transform.position = newPosition;
+            
             elapsedTime += Time.deltaTime;
             yield return null;
         }
+        
         transform.position = targetPosition;
-        isJumping = false;
-        yield return null;
+        _isJumping = false;
     }
 
     void Jump(Direction direction)
     {
-        if (isJumping) return;
+        if (_isJumping) return;
+
         
-        isJumping = true;
         switch (direction)
         {
             case Direction.Left:
