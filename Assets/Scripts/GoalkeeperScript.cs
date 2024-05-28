@@ -140,15 +140,21 @@ public class GoalkeeperScript : MonoBehaviour
         {
             // If the direction is left, we start a coroutine to animate the dive towards the left target position
             case Direction.Left:
-                StartCoroutine(DiveCoroutine(leftTarget.position));
+                // Adjust the target position slightly to the left for a more natural dive
+                Vector3 targetPosition = leftTarget.position + new Vector3(-3.0f, 0.0f, 0.0f);
+                StartCoroutine(DiveCoroutine(targetPosition));
                 break;
             // If the direction is middle, we start a coroutine to animate the dive towards the middle target position
             case Direction.Middle:
-                StartCoroutine(DiveCoroutine(middleTarget.position));
+                // Adjust the target position slightly above the middle for a more dynamic dive
+                Vector3 middleTargetPosition = middleTarget.position + new Vector3(0.0f, 0.0f, 3.0f);
+                StartCoroutine(DiveCoroutine(middleTargetPosition));
                 break;
             // If the direction is right, we start a coroutine to animate the dive towards the right target position
             case Direction.Right:
-                StartCoroutine(DiveCoroutine(rightTarget.position));
+                // Adjust the target position slightly to the right for a more natural dive
+                Vector3 rightTargetPosition = rightTarget.position + new Vector3(3.0f, 0.0f, 0.0f);
+                StartCoroutine(DiveCoroutine(rightTargetPosition));
                 break;
         }
     }
