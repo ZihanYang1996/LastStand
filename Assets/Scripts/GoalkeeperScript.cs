@@ -14,6 +14,7 @@ public class GoalkeeperScript : MonoBehaviour
 
     [Header("Tuning Parameters")] [SerializeField]
     private float jumpSpeed = 5f;
+    private float jumpTime = 1f;
 
     enum Direction
     {
@@ -44,19 +45,35 @@ public class GoalkeeperScript : MonoBehaviour
         }
     }
 
+    // private IEnumerator JumpCoroutine(Vector3 targetPosition)
+    // {
+    //     // Try Animation Curve in the future !!!!!!!!
+    //     // try use time instead of distance, so it's easier to control
+    //     Vector3 currentPosition = transform.position;
+    //     while (Vector3.Distance(currentPosition, targetPosition) > Mathf.Epsilon)
+    //     {
+    //         // Lerp (Linear Interpolation
+    //         Vector3 newPosition = Vector3.Lerp(currentPosition, targetPosition, jumpSpeed * Time.deltaTime);
+    //         transform.position = newPosition;
+    //         currentPosition = newPosition;
+    //         yield return new WaitForEndOfFrame();
+    //     }
+    // }
+    
     private IEnumerator JumpCoroutine(Vector3 targetPosition)
     {
         // Try Animation Curve in the future !!!!!!!!
-        // try use time instead of distance, so it's easier to control
-        Vector3 currentPosition = transform.position;
-        while (Vector3.Distance(currentPosition, targetPosition) > Mathf.Epsilon)
+        Vector3 velocity = Vector3.zero;
+        float elapsedTime = 0f;
+        
+        while (elapsedTime < jumpTime)
         {
-            // Lerp (Linear Interpolation
-            Vector3 newPosition = Vector3.Lerp(currentPosition, targetPosition, jumpSpeed * Time.deltaTime);
-            transform.position = newPosition;
-            currentPosition = newPosition;
-            yield return new WaitForEndOfFrame();
+            transform.position = Vector3.Lerp(transform.position, targetPosition, elapsedTime / jumpTime);
+            elapsedTime += Time.deltaTime;
+            yield return null;
         }
+        transform.position = targetPosition;
+        yield return null;
     }
 
     void Jump(Direction direction)
