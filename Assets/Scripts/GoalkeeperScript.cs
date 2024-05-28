@@ -16,6 +16,7 @@ public class GoalkeeperScript : MonoBehaviour
     private float jumpSpeed = 5f;
     private float jumpTime = 1f;
 
+    private bool isJumping = false;
     enum Direction
     {
         Left,
@@ -73,11 +74,15 @@ public class GoalkeeperScript : MonoBehaviour
             yield return null;
         }
         transform.position = targetPosition;
+        isJumping = false;
         yield return null;
     }
 
     void Jump(Direction direction)
     {
+        if (isJumping) return;
+        
+        isJumping = true;
         switch (direction)
         {
             case Direction.Left:
