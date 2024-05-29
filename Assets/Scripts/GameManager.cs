@@ -29,7 +29,9 @@ public class GameManager : MonoBehaviour
     private float _currentCountdown;
     private float _goalDetectionDelay = 2f;
     private bool _resultReceived = false;
+    private bool _increaseDifficulty = false;
     private Coroutine _gameCoroutine;
+    private TextMeshProUGUI _continueButtonText;
 
     // Singleton instance
     public static GameManager Instance { get; private set; }
@@ -37,6 +39,12 @@ public class GameManager : MonoBehaviour
     // Flag to indicate if the game is paused
     public static bool GamePaused = false;
 
+    enum ContinueButtonState
+    {
+        Continue,
+        Retry,
+        IncreaseDifficulty
+    }
 
     private void Awake()
     {
@@ -48,6 +56,17 @@ public class GameManager : MonoBehaviour
         {
             Destroy(gameObject);
         }
+        
+        // Find the continue button text
+        if (_continueButtonText = buttons.transform.Find("ContinueButton").GetComponentInChildren<TextMeshProUGUI>())
+        {
+            Debug.Log("Continue button text found.");
+        }
+        else
+        {
+            Debug.LogError("Continue button text not found.");
+        }
+        
     }
 
     // Start is called before the first frame update
@@ -55,7 +74,7 @@ public class GameManager : MonoBehaviour
     {
         // Hide buttons at the start
         buttons.SetActive(false);
-        
+
         // Set up and start the game
         SetupGame();
     }
@@ -78,18 +97,21 @@ public class GameManager : MonoBehaviour
     // Prepare the game for a new round
     private void SetupGame()
     {
+        Debug.Log("Starting the game.");
         // Stop coroutine
         if (_gameCoroutine != null)
         {
             StopCoroutine(_gameCoroutine);
             _gameCoroutine = null;
         }
-        
+
         // Unpause the game
         PauseGame(false);
 
         // Rest the flag that indicates if the result has been received
         _resultReceived = false;
+        // Reset the flag that indicates if the difficulty should be increased
+        _increaseDifficulty = false;
         // Reset the countdown
         _currentCountdown = kickingCountdown;
         // Reset the ball position
@@ -133,6 +155,22 @@ public class GameManager : MonoBehaviour
         _gameCoroutine = null;
     }
 
+    private void ConfigureContinueButton(ContinueButtonState state)
+    {
+        switch (state)
+        {
+            case ContinueButtonState.Continue:
+                _continueButtonText.text = "Continue";
+                break;
+            case ContinueButtonState.Retry:
+                _continueButtonText.text = "Retry";
+                break;
+            case ContinueButtonState.IncreaseDifficulty:
+                _continueButtonText.text = "Increase Difficulty";
+                break;
+        }
+    }
+
     /// <summary>
     /// Handles the pressing of the Escape key.
     /// </summary>
@@ -141,6 +179,7 @@ public class GameManager : MonoBehaviour
         // If the game is not paused, pause it
         if (!GamePaused)
         {
+            ConfigureContinueButton(ContinueButtonState.Continue);
             PauseGame(true);
         }
         else
@@ -185,8 +224,11 @@ public class GameManager : MonoBehaviour
         // If called after the result has been received, increase the difficulty then start new round
         if (_resultReceived)
         {
-            Debug.Log("Continue, increasing difficulty and starting new round.");
-            IncreaseDifficulty();
+            // If player succeeded, increase the difficulty
+            if (_increaseDifficulty)
+            {
+                IncreaseDifficulty();
+            }
             SetupGame();
         }
         else
@@ -211,12 +253,18 @@ public class GameManager : MonoBehaviour
         if (isGoal)
         {
             countdownText.text = "Noooooooooo!";
+            // Do not increase the difficulty if the player failed
+            _increaseDifficulty = false;
+            ConfigureContinueButton(ContinueButtonState.Retry);
         }
         else
         {
             countdownText.text = "Ooooooooooh!";
+            // If the player succeeded, increase the difficulty
+            _increaseDifficulty = true;
+            ConfigureContinueButton(ContinueButtonState.IncreaseDifficulty);
         }
-        
+
         // Pause the game
         PauseGame(true);
     }
