@@ -88,4 +88,10 @@ public class BallScript : MonoBehaviour
         _ball.velocity = Vector3.zero;
         _ball.angularVelocity = Vector3.zero;
     }
+    
+    public void IncreaseKickForce()
+    {
+        kickForce += 1f;
+        Debug.Log("Kick force increased to " + kickForce);
+    }
 }

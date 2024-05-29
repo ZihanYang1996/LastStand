@@ -13,12 +13,13 @@ public class GameManager : MonoBehaviour
     [Header("Game Settings")]
     [SerializeField]
     private TextMeshProUGUI countdownText;
+
     [SerializeField]
     private Button restartButton;
 
     [SerializeField]
     private BallScript ball;
-    
+
     [SerializeField]
     private GoalkeeperScript goalkeeper;
 
@@ -29,10 +30,14 @@ public class GameManager : MonoBehaviour
     private float _goalDetectionDelay = 2f;
     private bool _resultReceived = false;
     private Coroutine _gameCoroutine;
-    
+
     // Singleton instance
     public static GameManager Instance { get; private set; }
     
+    // Flag to indicate if the game is paused
+    public static bool GamePaused = false;
+
+
     private void Awake()
     {
         if (Instance == null)
@@ -58,8 +63,13 @@ public class GameManager : MonoBehaviour
         {
             Restart();
         }
+
+        if (Keyboard.current[Key.Escape].wasPressedThisFrame)
+        {
+            PauseGame(!GamePaused);
+        }
     }
-    
+
     // Prepare the game for a new round
     private void SetupGame()
     {
@@ -69,7 +79,7 @@ public class GameManager : MonoBehaviour
             StopCoroutine(_gameCoroutine);
             _gameCoroutine = null;
         }
-        
+
         // Rest the flag that indicates if the result has been received
         _resultReceived = false;
         // Reset the countdown
@@ -78,30 +88,31 @@ public class GameManager : MonoBehaviour
         ball.ResetBall();
         // Reset the goalkeeper position
         goalkeeper.ResetGoalkeeper();
-        
+
         // Start the game
         _gameCoroutine = StartCoroutine(StartGame());
     }
 
-    public void Restart()
+    private void IncreaseDifficulty()
     {
-        // SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
-        SetupGame();
+        // Increase the force of the ball kick
+        ball.IncreaseKickForce();
     }
 
-    public IEnumerator StartGame()
+    private IEnumerator StartGame()
     {
         // Enable the countdown text
         countdownText.gameObject.SetActive(true);
-        
+
         while (_currentCountdown > 0)
         {
             countdownText.text = _currentCountdown.ToString("F0");
             yield return new WaitForSeconds(1f);
             _currentCountdown--;
         }
+
         countdownText.text = "Go!";
-        
+
         // Wait for 0.5 second before hiding the countdown text and kicking the ball
         yield return new WaitForSeconds(0.5f);
         countdownText.gameObject.SetActive(false);
@@ -113,6 +124,45 @@ public class GameManager : MonoBehaviour
         // Set the game coroutine to null when finished
         _gameCoroutine = null;
     }
+    
+    private void PauseGame(bool pause)
+    {
+        if (pause && !GamePaused)
+        {
+            GamePaused = true;
+            Time.timeScale = 0;
+        }
+        else if (!pause && GamePaused)
+        {
+            GamePaused = false;
+            Time.timeScale = 1;
+        }
+        else
+        {
+            Debug.Log("Unexpected pause state.");
+        }
+    }
+
+    public void Restart()
+    {
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+    }
+
+    public void Continue()
+    {
+        // Unpause the game first no matter what
+        PauseGame(false);
+        
+        // If called after the result has been received, increase the difficulty then start new round
+        if (_resultReceived)
+        {
+            Debug.Log("Continue, increasing difficulty and starting new round.");
+            IncreaseDifficulty();
+            SetupGame();
+        }
+        
+    }
+
 
     public void ProcessResult(bool isGoal)
     {
@@ -120,7 +170,7 @@ public class GameManager : MonoBehaviour
         {
             return;
         }
-        
+
         _resultReceived = true;
         // Re-enable the countdown text
         countdownText.gameObject.SetActive(true);

@@ -70,6 +70,8 @@ public class GoalkeeperScript : MonoBehaviour
     /// </summary>
     private void TakeInput()
     {
+        // Do nothing if game is paused
+        if (GameManager.GamePaused) return;
         // Checks if the left arrow key was pressed during this frame
         // If so, it initiates a dive to the left
         if (Keyboard.current[Key.LeftArrow].wasPressedThisFrame)
@@ -89,6 +91,39 @@ public class GoalkeeperScript : MonoBehaviour
         if (Keyboard.current[Key.RightArrow].wasPressedThisFrame)
         {
             Dive(Direction.Right);
+        }
+    }
+
+    /// <summary>
+    /// Initiates the dive of the goalkeeper in the specified direction.
+    /// </summary>
+    /// <param name="direction">The direction in which the goalkeeper should dive.</param>
+    private void Dive(Direction direction)
+    {
+        // If the goalkeeper is already diving, we return to prevent another dive from starting
+        if (_isDiving) return;
+
+        // Depending on the direction, we start a coroutine to animate the dive towards the target position
+        switch (direction)
+        {
+            // If the direction is left, we start a coroutine to animate the dive towards the left target position
+            case Direction.Left:
+                // Adjust the target position slightly to the left for a more natural dive
+                Vector3 targetPosition = leftTarget.position + new Vector3(-3.0f, 0.0f, 0.0f);
+                _diveCoroutine = StartCoroutine(DiveCoroutine(targetPosition));
+                break;
+            // If the direction is middle, we start a coroutine to animate the dive towards the middle target position
+            case Direction.Middle:
+                // Adjust the target position slightly above the middle for a more dynamic dive
+                Vector3 middleTargetPosition = middleTarget.position + new Vector3(0.0f, 0.0f, 3.0f);
+                _diveCoroutine = StartCoroutine(DiveCoroutine(middleTargetPosition));
+                break;
+            // If the direction is right, we start a coroutine to animate the dive towards the right target position
+            case Direction.Right:
+                // Adjust the target position slightly to the right for a more natural dive
+                Vector3 rightTargetPosition = rightTarget.position + new Vector3(3.0f, 0.0f, 0.0f);
+                _diveCoroutine = StartCoroutine(DiveCoroutine(rightTargetPosition));
+                break;
         }
     }
 
@@ -131,38 +166,6 @@ public class GoalkeeperScript : MonoBehaviour
         _diveCoroutine = null;
     }
 
-    /// <summary>
-    /// Initiates the dive of the goalkeeper in the specified direction.
-    /// </summary>
-    /// <param name="direction">The direction in which the goalkeeper should dive.</param>
-    private void Dive(Direction direction)
-    {
-        // If the goalkeeper is already diving, we return to prevent another dive from starting
-        if (_isDiving) return;
-
-        // Depending on the direction, we start a coroutine to animate the dive towards the target position
-        switch (direction)
-        {
-            // If the direction is left, we start a coroutine to animate the dive towards the left target position
-            case Direction.Left:
-                // Adjust the target position slightly to the left for a more natural dive
-                Vector3 targetPosition = leftTarget.position + new Vector3(-3.0f, 0.0f, 0.0f);
-                _diveCoroutine = StartCoroutine(DiveCoroutine(targetPosition));
-                break;
-            // If the direction is middle, we start a coroutine to animate the dive towards the middle target position
-            case Direction.Middle:
-                // Adjust the target position slightly above the middle for a more dynamic dive
-                Vector3 middleTargetPosition = middleTarget.position + new Vector3(0.0f, 0.0f, 3.0f);
-                _diveCoroutine = StartCoroutine(DiveCoroutine(middleTargetPosition));
-                break;
-            // If the direction is right, we start a coroutine to animate the dive towards the right target position
-            case Direction.Right:
-                // Adjust the target position slightly to the right for a more natural dive
-                Vector3 rightTargetPosition = rightTarget.position + new Vector3(3.0f, 0.0f, 0.0f);
-                _diveCoroutine = StartCoroutine(DiveCoroutine(rightTargetPosition));
-                break;
-        }
-    }
 
     /// <summary>
     /// Resets the goalkeeper to the initial state.
