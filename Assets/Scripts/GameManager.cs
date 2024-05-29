@@ -15,7 +15,7 @@ public class GameManager : MonoBehaviour
     private TextMeshProUGUI countdownText;
 
     [SerializeField]
-    private Button restartButton;
+    private GameObject buttons;
 
     [SerializeField]
     private BallScript ball;
@@ -33,7 +33,7 @@ public class GameManager : MonoBehaviour
 
     // Singleton instance
     public static GameManager Instance { get; private set; }
-    
+
     // Flag to indicate if the game is paused
     public static bool GamePaused = false;
 
@@ -53,6 +53,10 @@ public class GameManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        // Hide buttons at the start
+        buttons.SetActive(false);
+        
+        // Set up and start the game
         SetupGame();
     }
 
@@ -66,9 +70,10 @@ public class GameManager : MonoBehaviour
 
         if (Keyboard.current[Key.Escape].wasPressedThisFrame)
         {
-            PauseGame(!GamePaused);
+            EscPressed();
         }
     }
+
 
     // Prepare the game for a new round
     private void SetupGame()
@@ -79,6 +84,9 @@ public class GameManager : MonoBehaviour
             StopCoroutine(_gameCoroutine);
             _gameCoroutine = null;
         }
+        
+        // Unpause the game
+        PauseGame(false);
 
         // Rest the flag that indicates if the result has been received
         _resultReceived = false;
@@ -124,18 +132,42 @@ public class GameManager : MonoBehaviour
         // Set the game coroutine to null when finished
         _gameCoroutine = null;
     }
-    
+
+    /// <summary>
+    /// Handles the pressing of the Escape key.
+    /// </summary>
+    private void EscPressed()
+    {
+        // If the game is not paused, pause it
+        if (!GamePaused)
+        {
+            PauseGame(true);
+        }
+        else
+        {
+            // If the result has not been received, unpause the game, otherwise do nothing
+            if (!_resultReceived)
+            {
+                PauseGame(false);
+            }
+        }
+    }
+
     private void PauseGame(bool pause)
     {
         if (pause && !GamePaused)
         {
             GamePaused = true;
             Time.timeScale = 0;
+            // Show buttons
+            buttons.SetActive(true);
         }
         else if (!pause && GamePaused)
         {
             GamePaused = false;
             Time.timeScale = 1;
+            // Hide buttons
+            buttons.SetActive(false);
         }
         else
         {
@@ -150,9 +182,6 @@ public class GameManager : MonoBehaviour
 
     public void Continue()
     {
-        // Unpause the game first no matter what
-        PauseGame(false);
-        
         // If called after the result has been received, increase the difficulty then start new round
         if (_resultReceived)
         {
@@ -160,12 +189,17 @@ public class GameManager : MonoBehaviour
             IncreaseDifficulty();
             SetupGame();
         }
-        
+        else
+        {
+            // Otherwise, just unpause the game first no matter what
+            PauseGame(false);
+        }
     }
 
 
     public void ProcessResult(bool isGoal)
     {
+        // Skip if the result has already been received
         if (_resultReceived)
         {
             return;
@@ -182,5 +216,8 @@ public class GameManager : MonoBehaviour
         {
             countdownText.text = "Ooooooooooh!";
         }
+        
+        // Pause the game
+        PauseGame(true);
     }
 }
