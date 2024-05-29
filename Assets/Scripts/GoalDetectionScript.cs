@@ -20,7 +20,7 @@ public class GoalDetectionScript : MonoBehaviour
     {
         if (other.CompareTag("Ball"))
         {
-            GameManager.Instance.GetResult(true);
+            GameManager.Instance.ProcessResult(true);
         }
     }
 }

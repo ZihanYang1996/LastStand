@@ -27,6 +27,8 @@ public class GoalkeeperScript : MonoBehaviour
     [SerializeField] private AnimationCurve diveCurve;
 
     private bool _isDiving = false;
+    private Vector3 _initialPosition;
+    private Coroutine _diveCoroutine;
 
     /// <summary>
     /// Enum representing the possible directions for the goalkeeper to dive.
@@ -50,8 +52,10 @@ public class GoalkeeperScript : MonoBehaviour
     }
 
     // Start is called before the first frame update
-    void Start()
+    void Awake()
     {
+        // Store the initial position of the goalkeeper
+        _initialPosition = transform.position;
     }
 
     // Update is called once per frame
@@ -124,13 +128,14 @@ public class GoalkeeperScript : MonoBehaviour
         transform.position = targetPosition;
         // Set the diving state to false
         _isDiving = false;
+        _diveCoroutine = null;
     }
 
     /// <summary>
     /// Initiates the dive of the goalkeeper in the specified direction.
     /// </summary>
     /// <param name="direction">The direction in which the goalkeeper should dive.</param>
-    void Dive(Direction direction)
+    private void Dive(Direction direction)
     {
         // If the goalkeeper is already diving, we return to prevent another dive from starting
         if (_isDiving) return;
@@ -142,20 +147,38 @@ public class GoalkeeperScript : MonoBehaviour
             case Direction.Left:
                 // Adjust the target position slightly to the left for a more natural dive
                 Vector3 targetPosition = leftTarget.position + new Vector3(-3.0f, 0.0f, 0.0f);
-                StartCoroutine(DiveCoroutine(targetPosition));
+                _diveCoroutine = StartCoroutine(DiveCoroutine(targetPosition));
                 break;
             // If the direction is middle, we start a coroutine to animate the dive towards the middle target position
             case Direction.Middle:
                 // Adjust the target position slightly above the middle for a more dynamic dive
                 Vector3 middleTargetPosition = middleTarget.position + new Vector3(0.0f, 0.0f, 3.0f);
-                StartCoroutine(DiveCoroutine(middleTargetPosition));
+                _diveCoroutine = StartCoroutine(DiveCoroutine(middleTargetPosition));
                 break;
             // If the direction is right, we start a coroutine to animate the dive towards the right target position
             case Direction.Right:
                 // Adjust the target position slightly to the right for a more natural dive
                 Vector3 rightTargetPosition = rightTarget.position + new Vector3(3.0f, 0.0f, 0.0f);
-                StartCoroutine(DiveCoroutine(rightTargetPosition));
+                _diveCoroutine = StartCoroutine(DiveCoroutine(rightTargetPosition));
                 break;
         }
+    }
+
+    /// <summary>
+    /// Resets the goalkeeper to the initial state.
+    /// </summary>
+    public void ResetGoalkeeper()
+    {
+        // If a dive coroutine is currently running, stop it
+        if (_diveCoroutine != null)
+        {
+            StopCoroutine(_diveCoroutine);
+            // Reset the diving state to false and clear the coroutine reference
+            _isDiving = false;
+            _diveCoroutine = null;
+        }
+
+        // Reset the position of the goalkeeper to the initial position
+        transform.position = _initialPosition;
     }
 }

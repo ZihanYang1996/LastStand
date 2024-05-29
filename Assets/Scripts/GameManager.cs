@@ -15,12 +15,17 @@ public class GameManager : MonoBehaviour
 
     [SerializeField]
     private BallScript ball;
+    
+    [SerializeField]
+    private GoalkeeperScript goalkeeper;
 
     [SerializeField]
     private float kickingCountdown = 5f;
 
+    private float _currentCountdown;
     private float _goalDetectionDelay = 2f;
     private bool _resultReceived = false;
+    private Coroutine _gameCoroutine;
     
     // Singleton instance
     public static GameManager Instance { get; private set; }
@@ -40,7 +45,7 @@ public class GameManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        StartCoroutine(StartGame());
+        SetupGame();
     }
 
     // Update is called once per frame
@@ -51,30 +56,62 @@ public class GameManager : MonoBehaviour
             Restart();
         }
     }
+    
+    // Prepare the game for a new round
+    private void SetupGame()
+    {
+        // Stop coroutine
+        if (_gameCoroutine != null)
+        {
+            StopCoroutine(_gameCoroutine);
+            _gameCoroutine = null;
+        }
+        
+        // Rest the flag that indicates if the result has been received
+        _resultReceived = false;
+        // Reset the countdown
+        _currentCountdown = kickingCountdown;
+        // Reset the ball position
+        ball.ResetBall();
+        // Reset the goalkeeper position
+        goalkeeper.ResetGoalkeeper();
+        
+        // Start the game
+        _gameCoroutine = StartCoroutine(StartGame());
+    }
 
     private void Restart()
     {
-        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+        // SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+        SetupGame();
     }
 
     public IEnumerator StartGame()
     {
-        while (kickingCountdown > 0)
+        // Enable the countdown text
+        countdownText.gameObject.SetActive(true);
+        
+        while (_currentCountdown > 0)
         {
-            countdownText.text = kickingCountdown.ToString("F0");
+            countdownText.text = _currentCountdown.ToString("F0");
             yield return new WaitForSeconds(1f);
-            kickingCountdown--;
+            _currentCountdown--;
         }
-
         countdownText.text = "Go!";
+        
+        // Wait for 0.5 second before hiding the countdown text and kicking the ball
+        yield return new WaitForSeconds(0.5f);
+        countdownText.gameObject.SetActive(false);
         ball.KickBall();
 
         yield return new WaitForSeconds(_goalDetectionDelay);
-        GetResult(false);
+        ProcessResult(false);
 
+        // Set the game coroutine to null when finished
+        _gameCoroutine = null;
     }
 
-    public void GetResult(bool isGoal)
+    public void ProcessResult(bool isGoal)
     {
         if (_resultReceived)
         {
@@ -82,13 +119,15 @@ public class GameManager : MonoBehaviour
         }
         
         _resultReceived = true;
+        // Re-enable the countdown text
+        countdownText.gameObject.SetActive(true);
         if (isGoal)
         {
-            Debug.Log("Goal! You lose!");
+            countdownText.text = "Noooooooooo!";
         }
         else
         {
-            Debug.Log("No goal! You win!");
+            countdownText.text = "Ooooooooooh!";
         }
     }
 }

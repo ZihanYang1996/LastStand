@@ -20,19 +20,25 @@ public class BallScript : MonoBehaviour
     private Transform middleTarget;
     [SerializeField]
     private Transform rightTarget;
-
+    
+    private Vector3 _initialPosition;
+    
     enum Direction
     {
         Left,
         Middle,
         Right
     }
-    
-    
+
+    private void Awake()
+    {
+        _ball = gameObject.GetComponent<Rigidbody>();
+        _initialPosition = transform.position;
+    }
+
     // Start is called before the first frame update
     void Start()
     {
-        _ball = gameObject.GetComponent<Rigidbody>();
     }
 
     // Update is called once per frame
@@ -73,8 +79,13 @@ public class BallScript : MonoBehaviour
         _ball.AddForce(direction * kickForce, ForceMode.Impulse);
     }
 
-    public void Reset()
+    public void ResetBall()
     {
-        transform.position = new Vector3(0, 0, 0);
+        // Reset the ball position and rotation
+        transform.position = _initialPosition;
+        
+        // Reset the ball velocity and angular velocity
+        _ball.velocity = Vector3.zero;
+        _ball.angularVelocity = Vector3.zero;
     }
 }
