@@ -6,12 +6,15 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
 using UnityEngine.Serialization;
+using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour
 {
     [Header("Game Settings")]
     [SerializeField]
     private TextMeshProUGUI countdownText;
+    [SerializeField]
+    private Button restartButton;
 
     [SerializeField]
     private BallScript ball;
@@ -80,7 +83,7 @@ public class GameManager : MonoBehaviour
         _gameCoroutine = StartCoroutine(StartGame());
     }
 
-    private void Restart()
+    public void Restart()
     {
         // SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
         SetupGame();
