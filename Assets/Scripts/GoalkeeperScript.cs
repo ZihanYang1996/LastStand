@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using ScriptableObjects;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.Serialization;
@@ -24,7 +25,7 @@ public class GoalkeeperScript : MonoBehaviour
     private float diveDuration = 1f;
 
     [Tooltip("The curve that defines the dive behavior over time")]
-    [SerializeField] private AnimationCurve diveCurve;
+    [SerializeField] private AnimationCurveAsset diveCurve;
 
     private bool _isDiving = false;
     private Vector3 _initialPosition;
@@ -146,7 +147,7 @@ public class GoalkeeperScript : MonoBehaviour
         {
             // Calculate the normalized time and evaluate the dive curve at this time
             float t = elapsedTime / diveDuration;
-            float curveValue = diveCurve.Evaluate(t);
+            float curveValue = diveCurve.curve.Evaluate(t);
 
             // Calculate the new position as a lerp between the start and target positions, using the curve value
             Vector3 newPosition = Vector3.Lerp(startPosition, targetPosition, curveValue);
