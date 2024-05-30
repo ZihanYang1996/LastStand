@@ -25,8 +25,10 @@ public class GoalkeeperScript : MonoBehaviour
     private float diveDuration = 1f;
 
     [Tooltip("The curve that defines the dive behavior over time")]
-    [SerializeField] private AnimationCurveAsset diveCurve;
+    [SerializeField]
+    private AnimationCurveAsset diveCurve;
 
+    private Animator _animator;
     private bool _isDiving = false;
     private Vector3 _initialPosition;
     private Coroutine _diveCoroutine;
@@ -57,6 +59,7 @@ public class GoalkeeperScript : MonoBehaviour
     {
         // Store the initial position of the goalkeeper
         _initialPosition = transform.position;
+        _animator = GetComponent<Animator>();
     }
 
     // Update is called once per frame
@@ -110,20 +113,23 @@ public class GoalkeeperScript : MonoBehaviour
             // If the direction is left, we start a coroutine to animate the dive towards the left target position
             case Direction.Left:
                 // Adjust the target position slightly to the left for a more natural dive
-                Vector3 targetPosition = leftTarget.position + new Vector3(-3.0f, 0.0f, 0.0f);
-                _diveCoroutine = StartCoroutine(DiveCoroutine(targetPosition));
+                // Vector3 targetPosition = leftTarget.position + new Vector3(-3.0f, 0.0f, 0.0f);
+                // _diveCoroutine = StartCoroutine(DiveCoroutine(targetPosition));
+                _animator.SetTrigger("DiveLeft");
                 break;
             // If the direction is middle, we start a coroutine to animate the dive towards the middle target position
             case Direction.Middle:
                 // Adjust the target position slightly above the middle for a more dynamic dive
-                Vector3 middleTargetPosition = middleTarget.position + new Vector3(0.0f, 0.0f, 3.0f);
-                _diveCoroutine = StartCoroutine(DiveCoroutine(middleTargetPosition));
+                // Vector3 middleTargetPosition = middleTarget.position + new Vector3(0.0f, 0.0f, 3.0f);
+                // _diveCoroutine = StartCoroutine(DiveCoroutine(middleTargetPosition));
+                _animator.SetTrigger("DiveMiddle");
                 break;
             // If the direction is right, we start a coroutine to animate the dive towards the right target position
             case Direction.Right:
                 // Adjust the target position slightly to the right for a more natural dive
-                Vector3 rightTargetPosition = rightTarget.position + new Vector3(3.0f, 0.0f, 0.0f);
-                _diveCoroutine = StartCoroutine(DiveCoroutine(rightTargetPosition));
+                // Vector3 rightTargetPosition = rightTarget.position + new Vector3(3.0f, 0.0f, 0.0f);
+                // _diveCoroutine = StartCoroutine(DiveCoroutine(rightTargetPosition));
+                _animator.SetTrigger("DiveRight");
                 break;
         }
     }
