@@ -63,16 +63,16 @@ public class BallScript : MonoBehaviour
         // switch (Direction.Middle)
         {
             case Direction.Left:
-                direction = (leftTarget.position - transform.position).normalized;
+                direction = (leftTarget.position - transform.position + new Vector3(0.0f, 7.0f, 0.0f)).normalized;
                 break;
             case Direction.Middle:
-                direction = (middleTarget.position - transform.position).normalized;
+                direction = (middleTarget.position - transform.position + new Vector3(0.0f, 9f, 0.0f)).normalized;
                 break;
             case Direction.Right:
-                direction = (rightTarget.position - transform.position).normalized;
+                direction = (rightTarget.position - transform.position + new Vector3(0.0f, 7.0f, 0.0f)).normalized;
                 break;
             default:
-                direction = (middleTarget.position - transform.position).normalized;
+                direction = (middleTarget.position - transform.position + new Vector3(0.0f, 7.0f, 0.0f)).normalized;
                 break;
                 
         }

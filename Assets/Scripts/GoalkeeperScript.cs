@@ -31,6 +31,7 @@ public class GoalkeeperScript : MonoBehaviour
     private Animator _animator;
     private bool _isDiving = false;
     private Vector3 _initialPosition;
+    private Vector3 _initialRotation;
     private Coroutine _diveCoroutine;
 
     /// <summary>
@@ -57,9 +58,14 @@ public class GoalkeeperScript : MonoBehaviour
     // Start is called before the first frame update
     void Awake()
     {
-        // Store the initial position of the goalkeeper
+        // Store the initial position and rotation of the goalkeeper
         _initialPosition = transform.position;
+        _initialRotation = transform.eulerAngles;
+        
+        // Get the animator component attached to the goalkeeper
         _animator = GetComponent<Animator>();
+        // Disable root motion to allow manual control over the position of the goalkeeper
+        _animator.applyRootMotion = false;
     }
 
     // Update is called once per frame
@@ -106,30 +112,39 @@ public class GoalkeeperScript : MonoBehaviour
     {
         // If the goalkeeper is already diving, we return to prevent another dive from starting
         if (_isDiving) return;
-
+        
+        // If the goalkeeper is not in the idle state, we return to prevent another dive from starting
+        if (!_animator.GetCurrentAnimatorStateInfo(0).IsName("GoalkeeperIdle"))
+        {
+            return;
+        }
+        
         // Depending on the direction, we start a coroutine to animate the dive towards the target position
         switch (direction)
         {
             // If the direction is left, we start a coroutine to animate the dive towards the left target position
             case Direction.Left:
-                // Adjust the target position slightly to the left for a more natural dive
-                // Vector3 targetPosition = leftTarget.position + new Vector3(-3.0f, 0.0f, 0.0f);
-                // _diveCoroutine = StartCoroutine(DiveCoroutine(targetPosition));
                 _animator.SetTrigger("DiveLeft");
+                
+                Vector3 targetPosition = leftTarget.position + new Vector3(0.0f, -2.5f, 2.0f);
+                _diveCoroutine = StartCoroutine(DiveCoroutine(targetPosition));
+                
                 break;
             // If the direction is middle, we start a coroutine to animate the dive towards the middle target position
             case Direction.Middle:
-                // Adjust the target position slightly above the middle for a more dynamic dive
-                // Vector3 middleTargetPosition = middleTarget.position + new Vector3(0.0f, 0.0f, 3.0f);
-                // _diveCoroutine = StartCoroutine(DiveCoroutine(middleTargetPosition));
                 _animator.SetTrigger("DiveMiddle");
+                
+                Vector3 middleTargetPosition = middleTarget.position + new Vector3(0.0f, 0.0f, 2.0f);
+                _diveCoroutine = StartCoroutine(DiveCoroutine(middleTargetPosition));
+                
                 break;
             // If the direction is right, we start a coroutine to animate the dive towards the right target position
             case Direction.Right:
-                // Adjust the target position slightly to the right for a more natural dive
-                // Vector3 rightTargetPosition = rightTarget.position + new Vector3(3.0f, 0.0f, 0.0f);
-                // _diveCoroutine = StartCoroutine(DiveCoroutine(rightTargetPosition));
                 _animator.SetTrigger("DiveRight");
+                
+                Vector3 rightTargetPosition = rightTarget.position + new Vector3(0.0f, -2.5f, 2.0f);
+                _diveCoroutine = StartCoroutine(DiveCoroutine(rightTargetPosition));
+                
                 break;
         }
     }
@@ -188,7 +203,10 @@ public class GoalkeeperScript : MonoBehaviour
             _diveCoroutine = null;
         }
 
+        _animator.Play("GoalkeeperIdle", 0, 0.0f);
+        
         // Reset the position of the goalkeeper to the initial position
         transform.position = _initialPosition;
+        transform.eulerAngles = _initialRotation;
     }
 }
