@@ -27,9 +27,9 @@ public class GameManager : MonoBehaviour
     private float kickingCountdown = 5f;
 
     private float _currentCountdown;
-    private float _goalDetectionDelay = 2f;
+    private float _goalDetectionDelay = 3.0f;
     private bool _resultReceived = false;
-    private bool _increaseDifficulty = false;
+    private bool _goal = false;
     private Coroutine _gameCoroutine;
     private TextMeshProUGUI _continueButtonText;
 
@@ -56,7 +56,7 @@ public class GameManager : MonoBehaviour
         {
             Destroy(gameObject);
         }
-        
+
         // Find the continue button text
         if (_continueButtonText = buttons.transform.Find("ContinueButton").GetComponentInChildren<TextMeshProUGUI>())
         {
@@ -66,7 +66,6 @@ public class GameManager : MonoBehaviour
         {
             Debug.LogError("Continue button text not found.");
         }
-        
     }
 
     // Start is called before the first frame update
@@ -111,7 +110,7 @@ public class GameManager : MonoBehaviour
         // Rest the flag that indicates if the result has been received
         _resultReceived = false;
         // Reset the flag that indicates if the difficulty should be increased
-        _increaseDifficulty = false;
+        _goal = false;
         // Reset the countdown
         _currentCountdown = kickingCountdown;
         // Reset the ball position
@@ -147,9 +146,12 @@ public class GameManager : MonoBehaviour
         yield return new WaitForSeconds(0.5f);
         countdownText.gameObject.SetActive(false);
         ball.KickBall();
-
+        
+        // Wait for the goal detection delay before checking the result
         yield return new WaitForSeconds(_goalDetectionDelay);
-        ProcessResult(false);
+        // If no result has been received, meaning there was no goal, process the result
+        _resultReceived = true;
+        ProcessResult();
 
         // Set the game coroutine to null when finished
         _gameCoroutine = null;
@@ -225,10 +227,11 @@ public class GameManager : MonoBehaviour
         if (_resultReceived)
         {
             // If player succeeded, increase the difficulty
-            if (_increaseDifficulty)
+            if (_goal)
             {
                 IncreaseDifficulty();
             }
+
             SetupGame();
         }
         else
@@ -239,29 +242,33 @@ public class GameManager : MonoBehaviour
     }
 
 
-    public void ProcessResult(bool isGoal)
+    public void GetResult(bool isGoal)
     {
         // Skip if the result has already been received
         if (_resultReceived)
         {
             return;
         }
-
         _resultReceived = true;
+        _goal = isGoal;
+    }
+
+    private void ProcessResult()
+    {
         // Re-enable the countdown text
         countdownText.gameObject.SetActive(true);
-        if (isGoal)
+        if (_goal)
         {
             countdownText.text = "Noooooooooo!";
             // Do not increase the difficulty if the player failed
-            _increaseDifficulty = false;
+            _goal = false;
             ConfigureContinueButton(ContinueButtonState.Retry);
         }
         else
         {
             countdownText.text = "Ooooooooooh!";
             // If the player succeeded, increase the difficulty
-            _increaseDifficulty = true;
+            _goal = true;
             ConfigureContinueButton(ContinueButtonState.IncreaseDifficulty);
         }
 
