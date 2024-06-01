@@ -24,15 +24,12 @@ public class GoalNetScript : MonoBehaviour
         // Get the ball's rigidbody
         Rigidbody ball = other.gameObject.GetComponent<Rigidbody>();
         
-        // Store the ball's direction
-        Vector3 direction = ball.velocity.normalized;
-        
         // Stop the ball
         ball.velocity = Vector3.zero;
         ball.angularVelocity = Vector3.zero;
         
         // Add a little force backwards
-        ball.AddForce(-direction * backForce, ForceMode.Impulse);
+        ball.AddForce(new Vector3(0, 0, 1) * backForce, ForceMode.Impulse);
         
         Debug.Log("Goal!");
 
