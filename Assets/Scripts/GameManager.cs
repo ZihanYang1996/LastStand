@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.Rendering;
 using UnityEngine.SceneManagement;
 using UnityEngine.Serialization;
 using UnityEngine.UI;
@@ -25,6 +26,9 @@ public class GameManager : MonoBehaviour
 
     [SerializeField]
     private float kickingCountdown = 5f;
+    
+    [SerializeField]
+    private Volume frostedGlassVolume;
 
     private float _currentCountdown;
     private float _goalDetectionDelay = 3.0f;
@@ -35,6 +39,9 @@ public class GameManager : MonoBehaviour
 
     // Singleton instance
     public static GameManager Instance { get; private set; }
+    
+    // Randomness
+    public static Vector3 RandomPosition;
 
     // Flag to indicate if the game is paused
     public static bool GamePaused = false;
@@ -103,7 +110,10 @@ public class GameManager : MonoBehaviour
             StopCoroutine(_gameCoroutine);
             _gameCoroutine = null;
         }
-
+        
+        // Generate a random variance in the ball's position
+        RandomPosition = new Vector3(UnityEngine.Random.Range(0.0f, 5.0f), 0, 0);
+        
         // Unpause the game
         PauseGame(false);
 
@@ -202,6 +212,8 @@ public class GameManager : MonoBehaviour
             Time.timeScale = 0;
             // Show buttons
             buttons.SetActive(true);
+            // Show the frosted glass effect
+            frostedGlassVolume.enabled = true;
         }
         else if (!pause && GamePaused)
         {
@@ -209,6 +221,8 @@ public class GameManager : MonoBehaviour
             Time.timeScale = 1;
             // Hide buttons
             buttons.SetActive(false);
+            // Hide the frosted glass effect
+            frostedGlassVolume.enabled = false;
         }
         else
         {

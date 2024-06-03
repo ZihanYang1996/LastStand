@@ -126,7 +126,9 @@ public class GoalkeeperScript : MonoBehaviour
             case Direction.Left:
                 _animator.SetTrigger("DiveLeft");
                 
-                Vector3 targetPosition = leftTarget.position + new Vector3(0.0f, -2.5f, 2.0f);
+                Vector3 targetPosition = leftTarget.position 
+                                         + new Vector3(-GameManager.RandomPosition.x, GameManager.RandomPosition.y, GameManager.RandomPosition.z)
+                                         + new Vector3(0.0f, -2.5f, 2.0f);
                 _diveCoroutine = StartCoroutine(DiveCoroutine(targetPosition));
                 
                 break;
@@ -134,7 +136,8 @@ public class GoalkeeperScript : MonoBehaviour
             case Direction.Middle:
                 _animator.SetTrigger("DiveMiddle");
                 
-                Vector3 middleTargetPosition = middleTarget.position + new Vector3(0.0f, 0.0f, 2.0f);
+                Vector3 middleTargetPosition = middleTarget.position 
+                                               + new Vector3(0.0f, 0.0f, 2.0f);
                 _diveCoroutine = StartCoroutine(DiveCoroutine(middleTargetPosition));
                 
                 break;
@@ -142,7 +145,9 @@ public class GoalkeeperScript : MonoBehaviour
             case Direction.Right:
                 _animator.SetTrigger("DiveRight");
                 
-                Vector3 rightTargetPosition = rightTarget.position + new Vector3(0.0f, -2.5f, 2.0f);
+                Vector3 rightTargetPosition = rightTarget.position 
+                                              + new Vector3(GameManager.RandomPosition.x, GameManager.RandomPosition.y, GameManager.RandomPosition.z)
+                                              + new Vector3(0.0f, -2.5f, 2.0f);
                 _diveCoroutine = StartCoroutine(DiveCoroutine(rightTargetPosition));
                 
                 break;
