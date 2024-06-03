@@ -29,11 +29,15 @@ public class GameManager : MonoBehaviour
     
     [SerializeField]
     private Volume frostedGlassVolume;
+    
+    [SerializeField]
+    private TextMeshProUGUI levelText;
 
     private float _currentCountdown;
     private float _goalDetectionDelay = 3.0f;
     private bool _resultReceived = false;
     private bool _goal = false;
+    private int _level = 1;
     private Coroutine _gameCoroutine;
     private TextMeshProUGUI _continueButtonText;
 
@@ -50,7 +54,7 @@ public class GameManager : MonoBehaviour
     {
         Continue,
         Retry,
-        IncreaseDifficulty
+        NextLevel
     }
 
     private void Awake()
@@ -111,6 +115,9 @@ public class GameManager : MonoBehaviour
             _gameCoroutine = null;
         }
         
+        // Update the level text with padding
+        levelText.text = "Level " + _level.ToString("D2");
+        
         // Generate a random variance in the ball's position
         RandomPosition = new Vector3(UnityEngine.Random.Range(0.0f, 5.0f), 0, 0);
         
@@ -136,6 +143,9 @@ public class GameManager : MonoBehaviour
     {
         // Increase the force of the ball kick
         ball.IncreaseKickForce();
+        
+        // Increase the level
+        _level += 1;
     }
 
     private IEnumerator StartGame()
@@ -177,8 +187,8 @@ public class GameManager : MonoBehaviour
             case ContinueButtonState.Retry:
                 _continueButtonText.text = "Retry";
                 break;
-            case ContinueButtonState.IncreaseDifficulty:
-                _continueButtonText.text = "Increase Difficulty";
+            case ContinueButtonState.NextLevel:
+                _continueButtonText.text = "Next Level";
                 break;
         }
     }
@@ -283,7 +293,7 @@ public class GameManager : MonoBehaviour
             countdownText.text = "Ooooooooooh!";
             // If the player succeeded, increase the difficulty
             _goal = true;
-            ConfigureContinueButton(ContinueButtonState.IncreaseDifficulty);
+            ConfigureContinueButton(ContinueButtonState.NextLevel);
         }
 
         // Pause the game
