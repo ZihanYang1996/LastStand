@@ -33,6 +33,8 @@ public class GoalkeeperScript : MonoBehaviour
     private Vector3 _initialPosition;
     private Vector3 _initialRotation;
     private Coroutine _diveCoroutine;
+    private AudioSource _audioSource;
+    private bool _audioPlayed = false;
 
     /// <summary>
     /// Enum representing the possible directions for the goalkeeper to dive.
@@ -66,6 +68,8 @@ public class GoalkeeperScript : MonoBehaviour
         _animator = GetComponent<Animator>();
         // Disable root motion to allow manual control over the position of the goalkeeper
         _animator.applyRootMotion = false;
+        // Get the audio source component attached to the goalkeeper
+        _audioSource = GetComponent<AudioSource>();
     }
 
     // Update is called once per frame
@@ -210,8 +214,23 @@ public class GoalkeeperScript : MonoBehaviour
 
         _animator.Play("GoalkeeperIdle", 0, 0.0f);
         
+        // Reset the audio played flag
+        _audioPlayed = false;
+        
         // Reset the position of the goalkeeper to the initial position
         transform.position = _initialPosition;
         transform.eulerAngles = _initialRotation;
+    }
+
+    private void OnCollisionEnter(Collision other)
+    {
+        if (other.gameObject.CompareTag("Ball"))
+        {
+            if (!_audioPlayed)
+            {
+                _audioSource.Play();
+                _audioPlayed = true;
+            }
+        }
     }
 }
